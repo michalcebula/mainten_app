@@ -56,10 +56,14 @@ group :development, :test do
   gem 'debug', platforms: %i[mri mingw x64_mingw]
   gem 'rspec-rails', '~> 6.0.0'
   gem 'rubocop', require: false
-  gem "rubycritic", require: false
+  gem 'rubycritic', require: false
 end
 
 group :development do
   gem 'annotate'
   gem 'web-console'
+end
+
+group :test do
+  gem 'simplecov', require: false
 end

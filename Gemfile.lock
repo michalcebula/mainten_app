@@ -301,6 +301,7 @@ DEPENDENCIES
   rspec-rails (~> 6.0.0)
   rubocop
   rubycritic
+  simplecov
   sprockets-rails
   stimulus-rails
   strong_migrations

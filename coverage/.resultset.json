@@ -1,0 +1,18 @@
+{
+  "RSpec": {
+    "coverage": {
+      "/Users/michalcebula/code/project/mainten_app/spec/models/user_spec.rb": {
+        "lines": [
+          null,
+          null,
+          1,
+          null,
+          1,
+          0,
+          null
+        ]
+      }
+    },
+    "timestamp": 1674199233
+  }
+}
