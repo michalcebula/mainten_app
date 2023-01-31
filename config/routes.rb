@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  namespace :api do
+    namespace :v1 do
+      resources :authentications, only: [:create]
+      delete :authentications, action: :destroy, controller: :authentications
 
-  # Defines the root path route ("/")
-  # root "articles#index"
+      resources :users
+    end
+  end
 end
