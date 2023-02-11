@@ -7,6 +7,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
     subject { get path }
 
     let(:path) { '/api/v1/users' }
+    let(:response_body) { JSON.parse(response.body)['data'] }
 
     context 'when unauthorized' do
       it_behaves_like 'index endpoint'
@@ -20,14 +21,15 @@ RSpec.describe 'Api::V1::Users', type: :request do
         subject
 
         expect(response.status).to eq 200
-        expect(JSON.parse(response.body)).to eq User.all.as_json
+        expect(response_body.first).to include('type', 'attributes', 'id')
+        expect(response_body.last['attributes']).to include('first_name', 'last_name', 'username', 'email')
       end
 
       it 'returns an empty list when users do not exist' do
         subject
 
         expect(response.status).to eq 200
-        expect(JSON.parse(response.body)).to eq []
+        expect(JSON.parse(response.body)['data']).to eq []
       end
     end
   end
@@ -37,26 +39,31 @@ RSpec.describe 'Api::V1::Users', type: :request do
 
     let(:user) { create(:user) }
     let(:path) { "/api/v1/users/#{user.id}" }
+    let(:response_body) { JSON.parse(response.body)['data'] }
 
     context 'when unauthorized' do
       it_behaves_like 'show endpoint'
     end
 
     context 'when authorized' do
-      before { allow_any_instance_of(Api::V1::BaseController).to receive(:authenticate_request) }
+      before do 
+        allow_any_instance_of(Api::V1::BaseController).to receive(:authenticate_request)
+        allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(user)
+      end
 
       it 'returns user data when user exist' do
         subject
 
         expect(response.status).to eq 200
-        expect(JSON.parse(response.body)).to eq user.as_json
+        expect(response_body).to include('type', 'attributes', 'id')
+        expect(response_body['attributes']).to include('first_name', 'last_name', 'username', 'email')
       end
 
       it 'returns error message when user does not exist' do
         get '/api/v1/users/invalid_id'
 
         expect(response.status).to eq 404
-        expect(response.body).to eq JSON.dump({ errors: ["Couldn't find User with 'id'=invalid_id"] })
+        expect(JSON.parse(response.body)).to eq({ 'errors' => ["Couldn't find User with 'id'=invalid_id"] })
       end
     end
   end
@@ -65,6 +72,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
     subject { post path, params: }
 
     let(:path) { '/api/v1/users' }
+    let(:response_body) { JSON.parse(response.body)['data'] }
 
     context 'when params are valid' do
       let(:params) do
@@ -81,11 +89,12 @@ RSpec.describe 'Api::V1::Users', type: :request do
       it 'crates user' do
         expect { subject }.to change(User, :count).by(1)
         expect(response.status).to eq 201
-        expect(JSON.parse(response.body)).to include(
-          'username' => 'test_user',
-          'email' => 'test@example.com',
-          'first_name' => 'test',
-          'last_name' => 'example'
+        expect(response_body).to include('type', 'attributes', 'id')
+        expect(response_body['attributes']).to include(
+          "email" => "test@example.com",
+          "first_name" => "test",
+          "last_name" => "example",
+          "username" => "test_user",
         )
       end
     end
@@ -115,6 +124,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
 
     let!(:user) { create(:user) }
     let(:path) { "/api/v1/users/#{user.id}" }
+    let(:response_body) { JSON.parse(response.body)['data'] }
 
     context 'when unauthorized' do
       it_behaves_like 'destroy endpoint'
@@ -129,7 +139,13 @@ RSpec.describe 'Api::V1::Users', type: :request do
         expect { subject }.to change(User, :count).by(-1)
 
         expect(response.status).to eq 200
-        expect(JSON.parse(response.body)).to eq user.as_json
+        expect(response_body).to include('type', 'attributes', 'id')
+        expect(response_body['attributes']).to include(
+          "email" => user.email,
+          "first_name" => user.first_name,
+          "last_name" => user.last_name,
+          "username" => user.username,
+        )
       end
 
       it 'returns error message when user does not exist' do
@@ -148,6 +164,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
 
     let!(:user) { create(:user) }
     let(:path) { "/api/v1/users/#{user.id}" }
+    let(:response_body) { JSON.parse(response.body)['data'] }
 
     context 'when unauthorized' do
       it_behaves_like 'update endpoint'
@@ -166,7 +183,13 @@ RSpec.describe 'Api::V1::Users', type: :request do
             .to change(user, :username).to('new_username')
             .and change(User, :count).by(0)
           expect(response.status).to eq 200
-          expect(JSON.parse(response.body)).to eq user.as_json
+          expect(response_body).to include('type', 'attributes', 'id')
+          expect(response_body['attributes']).to include(
+            "email" => user.email,
+            "first_name" => user.first_name,
+            "last_name" => user.last_name,
+            "username" => user.username,
+          )
         end
       end
 
