@@ -52,6 +52,7 @@ gem 'bootsnap', require: false
 
 gem 'jsonapi-serializer'
 gem 'jwt'
+gem 'pagy', '~> 6.0'
 gem 'strong_migrations'
 
 group :development, :test do
