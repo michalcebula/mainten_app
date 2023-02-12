@@ -6,7 +6,7 @@ RSpec.shared_examples '401 unauthorized' do
   it 'returns 401 response with authorization error message' do
     subject
 
-    expect(response.body).to eq(JSON.dump({ errors: ['unauthorized'] }))
+    expect(response.body).to eq(JSON.dump({ errors: ['Unauthorized'], status: 'unauthorized' }))
     expect(response.status).to eq 401
   end
 end

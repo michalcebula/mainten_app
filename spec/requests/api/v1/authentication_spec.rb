@@ -16,7 +16,7 @@ RSpec.describe 'Api::V1::Authentications', type: :request do
         subject
 
         expect(response.status).to eq 200
-        expect(JSON.parse(response.body)).to include('token')
+        expect(JSON.parse(response.body)['data']).to include('token')
       end
     end
 
@@ -28,7 +28,7 @@ RSpec.describe 'Api::V1::Authentications', type: :request do
         subject
 
         expect(response.status).to eq 401
-        expect(response.body).to eq JSON.dump({ errors: ['unauthorized'] })
+        expect(response.body).to eq JSON.dump({ errors: ['Unauthorized'], status: 'unauthorized' })
       end
     end
   end

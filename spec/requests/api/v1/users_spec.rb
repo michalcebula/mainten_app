@@ -76,7 +76,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
         get '/api/v1/users/invalid_id'
 
         expect(response.status).to eq 404
-        expect(JSON.parse(response.body)).to eq({ 'errors' => ["Couldn't find User with 'id'=invalid_id"] })
+        expect(JSON.parse(response.body)).to eq({ 'errors' => ["Couldn't find User with 'id'=invalid_id"], 'status' => 'not_found' })
       end
     end
   end
@@ -201,7 +201,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
             "email" => user.email,
             "first_name" => user.first_name,
             "last_name" => user.last_name,
-            "username" => user.username,
+            "username" => 'new_username',
           )
         end
       end
@@ -215,7 +215,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
           expect { subject }.to_not change(User, :count)
           expect(user).to eq(user.reload)
           expect(response.status).to eq 400
-          expect(response.body).to eq JSON.dump({ errors: ['invalid params'] })
+          expect(response.body).to eq JSON.dump({ errors: ['Invalid params'], status: 'bad_request'})
         end
       end
 

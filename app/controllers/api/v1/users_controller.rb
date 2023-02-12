@@ -7,29 +7,30 @@ module Api
 
       def index
         users = User.all
-
-        render json: paginate(users, serializer: UserSerializer), status: :ok
+        render_response(body: users, serializer: UserSerializer, paginated: true)
       end
 
       def show
         @user = set_user
         return render_unauthorized if @user != current_user
 
-        render json: UserSerializer.new(current_user), status: :ok
+        render_response(body: current_user, serializer: UserSerializer)
       rescue ActiveRecord::RecordNotFound => e
         user_not_found_response(e)
       end
 
       def create
         user = User.new(user_params)
-        return render json: create_user_body(user), status: :created if user.save
+        return render_response(status: :created, body: create_user_body(user)) if user.save
 
         render json: user_validation_errors(user), status: :unprocessable_entity
       end
 
       def update
         return render_invalid_params if user_params.empty?
-        return render json: UserSerializer.new(current_user), status: :ok if current_user.update(user_params)
+
+        current_user.assign_attributes(user_params)
+        return render_response(body: current_user, serializer: UserSerializer) if current_user.save
 
         render_general_error
       rescue ActiveRecord::RecordNotFound => e
@@ -42,7 +43,7 @@ module Api
 
         @user.destroy!
 
-        render json: UserSerializer.new(current_user), status: :ok
+        render_response(body: current_user, serializer: UserSerializer)
       rescue ActiveRecord::RecordNotFound => e
         user_not_found_response(e)
       end

@@ -7,8 +7,8 @@ module Api
 
       def create
         @user = find_user_by_username
-        return render json: { token: }, status: :ok if @user && @user.authenticate(permitted_params[:password])
-        
+        return render_response(body: { token: }) if @user&.authenticate(permitted_params[:password])
+
         render_unauthorized
       end
 
