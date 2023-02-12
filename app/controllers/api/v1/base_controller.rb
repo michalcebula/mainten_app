@@ -3,6 +3,8 @@
 module Api
   module V1
     class BaseController < ApplicationController
+      include Helpers::Paginable
+
       protect_from_forgery with: :null_session
       before_action :authenticate_request
 

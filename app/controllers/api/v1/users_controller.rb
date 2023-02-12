@@ -7,7 +7,8 @@ module Api
 
       def index
         users = User.all
-        render json: UserSerializer.new(users), status: :ok
+
+        render json: paginate(users, serializer: UserSerializer), status: :ok
       end
 
       def show

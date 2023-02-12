@@ -25,6 +25,19 @@ RSpec.describe 'Api::V1::Users', type: :request do
         expect(response_body.last['attributes']).to include('first_name', 'last_name', 'username', 'email')
       end
 
+      it 'returns pagination metadata' do
+        create_list(:user, 3)
+        subject
+        pagination_metadata = JSON.parse(response.body)['meta']
+
+        expect(response.status).to eq 200
+        expect(pagination_metadata).to include('page', 'items_per_page', 'total_pages', 'total_count')
+        expect(pagination_metadata['page']).to eq 1
+        expect(pagination_metadata['total_pages']).to eq 1
+        expect(pagination_metadata['total_count']).to eq 3
+        expect(pagination_metadata['items_per_page']).to eq 20
+      end
+
       it 'returns an empty list when users do not exist' do
         subject
 
