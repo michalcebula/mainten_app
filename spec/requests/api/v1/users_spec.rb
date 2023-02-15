@@ -119,14 +119,12 @@ RSpec.describe 'Api::V1::Users', type: :request do
         expect { subject }.to_not change(User, :count)
         expect(response.status).to eq 422
         expect(JSON.parse(response.body)['errors']).to include(
-          "Password can't be blank",
           "Email can't be blank",
-          "Password can't be blank",
           "First name can't be blank",
           "Last name can't be blank",
           "Username can't be blank",
           'Email is invalid',
-          'Password is too short (minimum is 8 characters)'
+          "Password can't be blank"
         )
       end
     end
@@ -232,6 +230,27 @@ RSpec.describe 'Api::V1::Users', type: :request do
 
           expect(response.status).to eq 404
           expect(JSON.parse(response.body)['errors']).to be_present
+        end
+      end
+
+      context 'when params are invalid' do
+        let(:params) { { email: '', username: '', password: 'pswd', password_confirmation: 'pswd2' } }
+  
+        it 'returns 422 response with error messages' do
+          allow_any_instance_of(Api::V1::BaseController).to receive(:current_user).and_return(user)
+          subject
+
+          expect(user.reload.username).to be_present
+          expect(user.email).to be_present
+          expect(response.status).to eq 422
+          expect(JSON.parse(response.body)['errors']).to include(
+            "Email can't be blank",
+            'Email is invalid',
+            "Username can't be blank",
+            'Email is invalid',
+            "Password is too short (minimum is 8 characters)",
+            "Password confirmation doesn't match Password"
+          )
         end
       end
     end

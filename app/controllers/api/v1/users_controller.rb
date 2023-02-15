@@ -32,7 +32,7 @@ module Api
         current_user.assign_attributes(user_params)
         return render_response(body: current_user, serializer: UserSerializer) if current_user.save
 
-        render_general_error
+        render json: user_validation_errors(current_user), status: :unprocessable_entity
       rescue ActiveRecord::RecordNotFound => e
         user_not_found_response(e)
       end
