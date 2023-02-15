@@ -21,7 +21,7 @@ module Api
 
       def create
         user = User.new(user_params)
-        return render_response(status: :created, body: create_user_body(user)) if user.save
+        return render_response(status: :created, body: create_user_body(user)) if UserRepository.save(user)
 
         render json: user_validation_errors(user), status: :unprocessable_entity
       end
@@ -30,7 +30,7 @@ module Api
         return render_invalid_params if user_params.empty?
 
         current_user.assign_attributes(user_params)
-        return render_response(body: current_user, serializer: UserSerializer) if current_user.save
+        return render_response(body: current_user, serializer: UserSerializer) if UserRepository.save(current_user)
 
         render json: user_validation_errors(current_user), status: :unprocessable_entity
       rescue ActiveRecord::RecordNotFound => e
@@ -51,7 +51,7 @@ module Api
       private
 
       def set_user
-        @user = User.find(user_id[:id])
+        @user = UserRepository.find(user_id[:id])
       end
 
       def user_params
@@ -65,7 +65,7 @@ module Api
       def user_validation_errors(user)
         { errors: user.errors.full_messages }
       end
-      
+
       def create_user_body(user)
         token = jwt_auth.encode(user_id: user.id)
         UserSerializer.new(user).serializable_hash.merge(jwt: token)
