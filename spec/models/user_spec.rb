@@ -94,5 +94,11 @@ RSpec.describe User, type: :model do
       expect(user).to be_invalid
       expect(validation_errors).to include("Password confirmation doesn't match Password")
     end
+
+    it 'sets fasle as admin? default' do
+      user = User.create(email: 'foo@bar.com', username: 'foobar', first_name: 'foo', last_name: 'bar', password: 'password')
+
+      expect(user.admin?).to be_falsey
+    end
   end
 end

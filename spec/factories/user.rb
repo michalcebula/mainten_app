@@ -7,5 +7,9 @@ FactoryBot.define do
     sequence(:first_name) { |n| "foo#{n}" }
     sequence(:last_name)  { |n| "bar#{n}" }
     sequence(:password) { |n| "password#{n}" }
+
+    trait :admin do
+      admin? { true }
+    end
   end
 end
