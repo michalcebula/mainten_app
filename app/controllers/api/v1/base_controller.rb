@@ -17,7 +17,7 @@ module Api
       end
 
       def current_user
-        @current_user = User.find_by(id: decoded_token[:user_id])
+        @current_user ||= UserRepository.find_current_user(decoded_token[:user_id])
       end
 
       def jwt_auth

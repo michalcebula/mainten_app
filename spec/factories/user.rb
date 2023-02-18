@@ -14,7 +14,8 @@ FactoryBot.define do
 
     trait :superuser do
       after(:create) do |user|
-        user.roles << Role.find_by(name: 'superuser') || FactoryBot.create(:role, :superuser)
+        role = Role.find_by(name: 'superuser') || FactoryBot.create(:role, :superuser)
+        user.roles << role
       end
     end
   end

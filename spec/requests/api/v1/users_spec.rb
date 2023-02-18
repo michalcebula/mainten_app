@@ -59,7 +59,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
     end
 
     context 'when authorized' do
-      before do 
+      before do
         allow_any_instance_of(Api::V1::BaseController).to receive(:authenticate_request)
         allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(user)
       end
@@ -76,7 +76,8 @@ RSpec.describe 'Api::V1::Users', type: :request do
         get '/api/v1/users/invalid_id'
 
         expect(response.status).to eq 404
-        expect(JSON.parse(response.body)).to eq({ 'errors' => ["Couldn't find User with 'id'=invalid_id"], 'status' => 'not_found' })
+        expect(JSON.parse(response.body)).to eq({ 'errors' => ["Couldn't find User with 'id'=invalid_id"],
+                                                  'status' => 'not_found' })
       end
     end
   end
@@ -104,10 +105,10 @@ RSpec.describe 'Api::V1::Users', type: :request do
         expect(response.status).to eq 201
         expect(response_body).to include('type', 'attributes', 'id')
         expect(response_body['attributes']).to include(
-          "email" => "test@example.com",
-          "first_name" => "test",
-          "last_name" => "example",
-          "username" => "test_user",
+          'email' => 'test@example.com',
+          'first_name' => 'test',
+          'last_name' => 'example',
+          'username' => 'test_user'
         )
       end
     end
@@ -152,10 +153,10 @@ RSpec.describe 'Api::V1::Users', type: :request do
         expect(response.status).to eq 200
         expect(response_body).to include('type', 'attributes', 'id')
         expect(response_body['attributes']).to include(
-          "email" => user.email,
-          "first_name" => user.first_name,
-          "last_name" => user.last_name,
-          "username" => user.username,
+          'email' => user.email,
+          'first_name' => user.first_name,
+          'last_name' => user.last_name,
+          'username' => user.username
         )
       end
 
@@ -196,10 +197,10 @@ RSpec.describe 'Api::V1::Users', type: :request do
           expect(response.status).to eq 200
           expect(response_body).to include('type', 'attributes', 'id')
           expect(response_body['attributes']).to include(
-            "email" => user.email,
-            "first_name" => user.first_name,
-            "last_name" => user.last_name,
-            "username" => 'new_username',
+            'email' => user.email,
+            'first_name' => user.first_name,
+            'last_name' => user.last_name,
+            'username' => 'new_username'
           )
         end
       end
@@ -213,7 +214,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
           expect { subject }.to_not change(User, :count)
           expect(user).to eq(user.reload)
           expect(response.status).to eq 400
-          expect(response.body).to eq JSON.dump({ errors: ['Invalid params'], status: 'bad_request'})
+          expect(response.body).to eq JSON.dump({ errors: ['Invalid params'], status: 'bad_request' })
         end
       end
 
@@ -235,7 +236,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
 
       context 'when params are invalid' do
         let(:params) { { email: '', username: '', password: 'pswd', password_confirmation: 'pswd2' } }
-  
+
         it 'returns 422 response with error messages' do
           allow_any_instance_of(Api::V1::BaseController).to receive(:current_user).and_return(user)
           subject
@@ -248,7 +249,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
             'Email is invalid',
             "Username can't be blank",
             'Email is invalid',
-            "Password is too short (minimum is 8 characters)",
+            'Password is too short (minimum is 8 characters)',
             "Password confirmation doesn't match Password"
           )
         end

@@ -66,7 +66,7 @@ RSpec.describe User, type: :model do
       user.password_confirmation = 'pswd'
 
       expect(user).to be_invalid
-      expect(validation_errors).to include("Password is too short (minimum is 8 characters)")
+      expect(validation_errors).to include('Password is too short (minimum is 8 characters)')
     end
 
     it 'has encrypted password' do
@@ -85,7 +85,7 @@ RSpec.describe User, type: :model do
       user.assign_attributes(password: 'pswd', password_confirmation: 'pswd')
 
       expect(user).to be_invalid
-      expect(validation_errors).to include("Password is too short (minimum is 8 characters)")
+      expect(validation_errors).to include('Password is too short (minimum is 8 characters)')
     end
 
     it 'matches password confirmation' do
@@ -96,13 +96,15 @@ RSpec.describe User, type: :model do
     end
 
     it 'sets fasle as admin? default' do
-      user = User.create(email: 'foo@bar.com', username: 'foobar', first_name: 'foo', last_name: 'bar', password: 'password')
+      user = User.create(email: 'foo@bar.com', username: 'foobar', first_name: 'foo', last_name: 'bar',
+                         password: 'password')
 
       expect(user.admin?).to be_falsey
     end
 
     it 'sets true as active? default' do
-      user = User.create(email: 'foo@bar.com', username: 'foobar', first_name: 'foo', last_name: 'bar', password: 'password')
+      user = User.create(email: 'foo@bar.com', username: 'foobar', first_name: 'foo', last_name: 'bar',
+                         password: 'password')
 
       expect(user.active?).to be_truthy
     end

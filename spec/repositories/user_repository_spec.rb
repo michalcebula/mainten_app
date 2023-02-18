@@ -29,4 +29,19 @@ RSpec.describe UserRepository do
       expect { subject.find('invalid_id') }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
+
+  describe '#find_current_user' do
+    let!(:user) { create(:user, :superuser) }
+
+    it 'returns user with preloaded roles if user exist' do
+      current_user = subject.find_current_user(user.id)
+
+      expect(current_user).to eq user
+      expect(current_user.roles.loaded?).to be_truthy
+    end
+
+    it 'returns nil if user does not exist' do
+      expect(subject.find_current_user('invalid_id')).to be_nil
+    end
+  end
 end
