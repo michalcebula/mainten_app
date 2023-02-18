@@ -18,5 +18,12 @@ FactoryBot.define do
         user.roles << role
       end
     end
+
+    trait :operator do
+      after(:create) do |user|
+        role = Role.find_by(name: 'operator') || FactoryBot.create(:role, :operator)
+        user.roles << role
+      end
+    end
   end
 end

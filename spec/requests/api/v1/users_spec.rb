@@ -14,10 +14,13 @@ RSpec.describe 'Api::V1::Users', type: :request do
     end
 
     context 'when authorized' do
-      before { allow_any_instance_of(Api::V1::BaseController).to receive(:authenticate_request) }
+      before do
+        allow_any_instance_of(Api::V1::BaseController).to receive(:authenticate_request)
+        allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(create(:user, :admin))
+      end
 
       it 'returns users list when users exist' do
-        create_list(:user, 3)
+        create_list(:user, 2)
         subject
 
         expect(response.status).to eq 200
@@ -26,7 +29,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
       end
 
       it 'returns pagination metadata' do
-        create_list(:user, 3)
+        create_list(:user, 2)
         subject
         pagination_metadata = JSON.parse(response.body)['meta']
 
@@ -36,13 +39,6 @@ RSpec.describe 'Api::V1::Users', type: :request do
         expect(pagination_metadata['total_pages']).to eq 1
         expect(pagination_metadata['total_count']).to eq 3
         expect(pagination_metadata['items_per_page']).to eq 20
-      end
-
-      it 'returns an empty list when users do not exist' do
-        subject
-
-        expect(response.status).to eq 200
-        expect(JSON.parse(response.body)['data']).to eq []
       end
     end
   end
@@ -86,47 +82,73 @@ RSpec.describe 'Api::V1::Users', type: :request do
     subject { post path, params: }
 
     let(:path) { '/api/v1/users' }
+    let(:params) { {} }
     let(:response_body) { JSON.parse(response.body)['data'] }
 
-    context 'when params are valid' do
-      let(:params) do
-        {
-          username: 'test_user',
-          password: 'test_password',
-          password_confirmation: 'test_password',
-          email: 'test@example.com',
-          first_name: 'test',
-          last_name: 'example'
-        }
-      end
+    context 'when unauthorized' do
+      it_behaves_like 'show endpoint'
 
-      it 'crates user' do
-        expect { subject }.to change(User, :count).by(1)
-        expect(response.status).to eq 201
-        expect(response_body).to include('type', 'attributes', 'id')
-        expect(response_body['attributes']).to include(
-          'email' => 'test@example.com',
-          'first_name' => 'test',
-          'last_name' => 'example',
-          'username' => 'test_user'
-        )
+      it 'returns unauthorized status if user is unpermitted' do
+        allow_any_instance_of(Api::V1::BaseController).to receive(:authenticate_request)
+        allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(create(:user, :operator))
+
+        subject
+
+        expect(response).to have_http_status(:unauthorized)
       end
     end
 
-    context 'when params are invalid' do
-      let(:params) { {} }
+    context 'when authorized' do
+      before { allow_any_instance_of(Api::V1::BaseController).to receive(:authenticate_request) }
 
-      it 'returns 422 response with error messages' do
-        expect { subject }.to_not change(User, :count)
-        expect(response.status).to eq 422
-        expect(JSON.parse(response.body)['errors']).to include(
-          "Email can't be blank",
-          "First name can't be blank",
-          "Last name can't be blank",
-          "Username can't be blank",
-          'Email is invalid',
-          "Password can't be blank"
-        )
+      context 'when params are valid and user is permitted' do
+        let(:params) do
+          {
+            username: 'test_user',
+            password: 'test_password',
+            password_confirmation: 'test_password',
+            email: 'test@example.com',
+            first_name: 'test',
+            last_name: 'example'
+          }
+        end
+
+        before do
+          allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(create(:user, :admin))
+        end
+
+        it 'crates user if user is permitted' do
+          expect { subject }.to change(User, :count).by(1)
+          expect(response.status).to eq 201
+          expect(response_body).to include('type', 'attributes', 'id')
+          expect(response_body['attributes']).to include(
+            'email' => 'test@example.com',
+            'first_name' => 'test',
+            'last_name' => 'example',
+            'username' => 'test_user'
+          )
+        end
+      end
+
+      context 'when params are invalid' do
+        let(:params) { {} }
+
+        before do
+          allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(create(:user, :admin))
+        end
+
+        it 'returns 422 response with error messages' do
+          expect { subject }.to_not change(User, :count)
+          expect(response.status).to eq 422
+          expect(JSON.parse(response.body)['errors']).to include(
+            "Email can't be blank",
+            "First name can't be blank",
+            "Last name can't be blank",
+            "Username can't be blank",
+            'Email is invalid',
+            "Password can't be blank"
+          )
+        end
       end
     end
   end

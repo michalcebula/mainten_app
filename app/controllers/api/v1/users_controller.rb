@@ -3,23 +3,24 @@
 module Api
   module V1
     class UsersController < Api::V1::BaseController
-      skip_before_action :authenticate_request, only: [:create]
-
       def index
-        users = User.all
-        render_response(body: users, serializer: UserSerializer, paginated: true)
+        return render_unauthorized unless Api::UserPolicy.index?(current_user)
+
+        render_response(body: User.all, serializer: UserSerializer, paginated: true)
       end
 
       def show
         @user = set_user
-        return render_unauthorized if @user != current_user
+        return render_unauthorized unless Api::UserPolicy.show?(current_user, @user.id)
 
-        render_response(body: current_user, serializer: UserSerializer)
+        render_response(body: @user, serializer: UserSerializer)
       rescue ActiveRecord::RecordNotFound => e
         user_not_found_response(e)
       end
 
       def create
+        return render_unauthorized unless Api::UserPolicy.create?(current_user)
+
         user = User.new(user_params)
         return render_response(status: :created, body: create_user_body(user)) if UserRepository.save(user)
 
@@ -27,23 +28,23 @@ module Api
       end
 
       def update
+        user = set_user
+        return render_unauthorized unless Api::UserPolicy.update?(current_user, user.id)
         return render_invalid_params if user_params.empty?
 
-        current_user.assign_attributes(user_params)
-        return render_response(body: current_user, serializer: UserSerializer) if UserRepository.save(current_user)
+        user.assign_attributes(user_params)
+        return render_response(body: user, serializer: UserSerializer) if UserRepository.save(user)
 
-        render json: user_validation_errors(current_user), status: :unprocessable_entity
+        render json: user_validation_errors(user), status: :unprocessable_entity
       rescue ActiveRecord::RecordNotFound => e
         user_not_found_response(e)
       end
 
       def destroy
-        @user = set_user
-        return render_unauthorized if @user != current_user
+        user = set_user
+        return render_unauthorized unless Api::UserPolicy.destroy?(current_user, user.id)
 
-        @user.destroy!
-
-        render_response(body: current_user, serializer: UserSerializer)
+        render_response(body: user, serializer: UserSerializer) if user.destroy!
       rescue ActiveRecord::RecordNotFound => e
         user_not_found_response(e)
       end
@@ -51,7 +52,9 @@ module Api
       private
 
       def set_user
-        @user = UserRepository.find(user_id[:id])
+        return current_user if current_user.id == user_id
+
+        UserRepository.find(user_id)
       end
 
       def user_params
@@ -59,7 +62,7 @@ module Api
       end
 
       def user_id
-        params.permit(:id)
+        params.permit(:id)[:id]
       end
 
       def user_validation_errors(user)
