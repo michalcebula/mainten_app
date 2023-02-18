@@ -100,5 +100,11 @@ RSpec.describe User, type: :model do
 
       expect(user.admin?).to be_falsey
     end
+
+    it 'sets true as active? default' do
+      user = User.create(email: 'foo@bar.com', username: 'foobar', first_name: 'foo', last_name: 'bar', password: 'password')
+
+      expect(user.active?).to be_truthy
+    end
   end
 end
