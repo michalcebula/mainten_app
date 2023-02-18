@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+  has_many :role_assignments
+  has_many :roles, through: :role_assignments
   has_secure_password
 
   validates :email, format: URI::MailTo::EMAIL_REGEXP

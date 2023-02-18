@@ -11,5 +11,11 @@ FactoryBot.define do
     trait :admin do
       admin? { true }
     end
+
+    trait :superuser do
+      after(:create) do |user|
+        user.roles << Role.find_by(name: 'superuser') || FactoryBot.create(:role, :superuser)
+      end
+    end
   end
 end
