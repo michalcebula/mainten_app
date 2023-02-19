@@ -26,6 +26,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
         expect(response.status).to eq 200
         expect(response_body).to include('type', 'attributes', 'id')
         expect(response_body['attributes']).to include('first_name', 'last_name', 'username', 'email')
+        expect(response_body['relationships']).to include('roles')
       end
 
       it 'returns error message when user does not exist' do
@@ -72,10 +73,10 @@ RSpec.describe 'Api::V1::Users', type: :request do
             last_name: 'example'
           }
         end
+        let(:user) { create(:user, :superuser) }
 
         before do
-          allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(create(:user,
-                                                                                                      :superuser))
+          allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(user)
         end
 
         it 'crates user if user is permitted' do
@@ -88,6 +89,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
             'last_name' => 'example',
             'username' => 'test_user'
           )
+          expect(response_body['relationships']).to include('roles')
         end
       end
 
@@ -142,6 +144,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
           'last_name' => user.last_name,
           'username' => user.username
         )
+        expect(response_body['relationships']).to include('roles')
       end
 
       it 'returns error message when user does not exist' do
@@ -186,6 +189,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
             'last_name' => user.last_name,
             'username' => 'new_username'
           )
+          expect(response_body['relationships']).to include('roles')
         end
       end
 

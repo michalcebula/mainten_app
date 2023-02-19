@@ -5,5 +5,8 @@ class UserSerializer
 
   set_type :user
   set_id :id
+
   attributes :username, :email, :first_name, :last_name
+
+  has_many :roles, through: :role_assignments
 end

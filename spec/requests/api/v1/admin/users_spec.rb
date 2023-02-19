@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Api::V1::Admin::Users', type: :request do
-  let(:admin) { create(:user) }
+  let(:admin) { create(:user, :admin, :superuser) }
   describe '#index' do
     subject { get path }
 
@@ -28,6 +28,7 @@ RSpec.describe 'Api::V1::Admin::Users', type: :request do
         expect(response.status).to eq 200
         expect(response_body.first).to include('type', 'attributes', 'id')
         expect(response_body.last['attributes']).to include('first_name', 'last_name', 'username', 'email')
+        expect(response_body.first['relationships']).to include('roles')
       end
 
       it 'returns pagination metadata' do
@@ -69,6 +70,7 @@ RSpec.describe 'Api::V1::Admin::Users', type: :request do
         expect(response.status).to eq 200
         expect(response_body).to include('type', 'attributes', 'id')
         expect(response_body['attributes']).to include('first_name', 'last_name', 'username', 'email')
+        expect(response_body['relationships']).to include('roles')
       end
 
       it 'returns error message when user does not exist' do
@@ -121,6 +123,7 @@ RSpec.describe 'Api::V1::Admin::Users', type: :request do
             'last_name' => 'example',
             'username' => 'test_user'
           )
+          expect(response_body['relationships']).to include('roles')
         end
       end
 
@@ -169,6 +172,7 @@ RSpec.describe 'Api::V1::Admin::Users', type: :request do
           'last_name' => user.last_name,
           'username' => user.username
         )
+        expect(response_body['relationships']).to include('roles')
       end
 
       it 'returns error message when user does not exist' do
@@ -217,6 +221,7 @@ RSpec.describe 'Api::V1::Admin::Users', type: :request do
             'last_name' => user.last_name,
             'username' => 'new_username'
           )
+          expect(response_body['relationships']).to include('roles')
         end
       end
 

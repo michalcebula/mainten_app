@@ -6,7 +6,8 @@ RSpec.describe UserSerializer do
   describe '#serializable_hash' do
     subject { described_class.new(user) }
 
-    let(:user) { create(:user) }
+    let(:user) { create(:user, :operator) }
+    let(:role) { user.roles.first }
     let(:expected_result) do
       {
         data:
@@ -19,6 +20,11 @@ RSpec.describe UserSerializer do
             email: user.email,
             first_name: user.first_name,
             last_name: user.last_name
+          },
+          relationships: {
+            roles: {
+              data: [{ id: role.id, type: :role }]
+            }
           }
         }
       }
