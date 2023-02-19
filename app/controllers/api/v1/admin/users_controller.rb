@@ -5,7 +5,7 @@ module Api
     module Admin
       class UsersController < Admin::BaseController
         def index
-          render_response(body: User.all, serializer: UserSerializer, paginated: true)
+          render_response(body: UserRepository.all, serializer: UserSerializer, paginated: true)
         end
 
         def show

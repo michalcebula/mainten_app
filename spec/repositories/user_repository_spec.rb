@@ -44,4 +44,12 @@ RSpec.describe UserRepository do
       expect(subject.find_current_user('invalid_id')).to be_nil
     end
   end
+
+  describe '#all' do
+    let(:users) { create_list(:user, 3, :operator) }
+
+    it 'returns list of users' do
+      expect(subject.all).to eq users
+    end
+  end
 end

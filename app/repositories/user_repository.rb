@@ -15,5 +15,9 @@ class UserRepository
     rescue ActiveRecord::RecordNotFound
       nil
     end
+
+    def all
+      User.includes(:roles).all
+    end
   end
 end
