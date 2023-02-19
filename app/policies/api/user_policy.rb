@@ -12,8 +12,6 @@ module Api
       end
 
       def create?(user)
-        return true if user.admin?
-
         permited_roles = %w[superuser leader]
         user.roles.any? { |role| role.name.in? permited_roles }
       end

@@ -3,46 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe 'Api::V1::Users', type: :request do
-  describe '#index' do
-    subject { get path }
-
-    let(:path) { '/api/v1/users' }
-    let(:response_body) { JSON.parse(response.body)['data'] }
-
-    context 'when unauthorized' do
-      it_behaves_like 'index endpoint'
-    end
-
-    context 'when authorized' do
-      before do
-        allow_any_instance_of(Api::V1::BaseController).to receive(:authenticate_request)
-        allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(create(:user, :admin))
-      end
-
-      it 'returns users list when users exist' do
-        create_list(:user, 2)
-        subject
-
-        expect(response.status).to eq 200
-        expect(response_body.first).to include('type', 'attributes', 'id')
-        expect(response_body.last['attributes']).to include('first_name', 'last_name', 'username', 'email')
-      end
-
-      it 'returns pagination metadata' do
-        create_list(:user, 2)
-        subject
-        pagination_metadata = JSON.parse(response.body)['meta']
-
-        expect(response.status).to eq 200
-        expect(pagination_metadata).to include('page', 'items_per_page', 'total_pages', 'total_count')
-        expect(pagination_metadata['page']).to eq 1
-        expect(pagination_metadata['total_pages']).to eq 1
-        expect(pagination_metadata['total_count']).to eq 3
-        expect(pagination_metadata['items_per_page']).to eq 20
-      end
-    end
-  end
-
   describe '#show' do
     subject { get path }
 
@@ -86,7 +46,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
     let(:response_body) { JSON.parse(response.body)['data'] }
 
     context 'when unauthorized' do
-      it_behaves_like 'show endpoint'
+      it_behaves_like 'create endpoint'
 
       it 'returns unauthorized status if user is unpermitted' do
         allow_any_instance_of(Api::V1::BaseController).to receive(:authenticate_request)
@@ -114,7 +74,8 @@ RSpec.describe 'Api::V1::Users', type: :request do
         end
 
         before do
-          allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(create(:user, :admin))
+          allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(create(:user,
+                                                                                                      :superuser))
         end
 
         it 'crates user if user is permitted' do
@@ -134,7 +95,8 @@ RSpec.describe 'Api::V1::Users', type: :request do
         let(:params) { {} }
 
         before do
-          allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(create(:user, :admin))
+          allow_any_instance_of(Api::V1::UsersController).to receive(:current_user).and_return(create(:user,
+                                                                                                      :superuser))
         end
 
         it 'returns 422 response with error messages' do

@@ -34,12 +34,6 @@ RSpec.describe Api::UserPolicy do
       expect(subject.create?(user)).to be_truthy
     end
 
-    it 'returns true if user is admin' do
-      user = build_stubbed(:user, :admin)
-
-      expect(subject.create?(user)).to be_truthy
-    end
-
     it 'returns false if users is not admin and has unpermitted roles' do
       user = create(:user, :operator)
 

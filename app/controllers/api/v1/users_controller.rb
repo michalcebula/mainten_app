@@ -3,12 +3,6 @@
 module Api
   module V1
     class UsersController < Api::V1::BaseController
-      def index
-        return render_unauthorized unless Api::UserPolicy.index?(current_user)
-
-        render_response(body: User.all, serializer: UserSerializer, paginated: true)
-      end
-
       def show
         @user = set_user
         return render_unauthorized unless Api::UserPolicy.show?(current_user, @user.id)
