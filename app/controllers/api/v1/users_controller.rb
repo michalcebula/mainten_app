@@ -15,7 +15,7 @@ module Api
       def create
         return render_unauthorized unless Api::UserPolicy.create?(current_user)
 
-        user = User.new(user_params)
+        user = User.new(user_params.merge(customer: current_user.customer))
         return render_response(status: :created, body: create_user_body(user)) if UserRepository.save(user)
 
         render json: user_validation_errors(user), status: :unprocessable_entity

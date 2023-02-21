@@ -16,7 +16,7 @@ module Api
         end
 
         def create
-          user = User.new(user_params)
+          user = User.new(user_params.merge(customer: customer))
           return render_response(status: :created, body: create_user_body(user)) if UserRepository.save(user)
 
           render json: user_validation_errors(user), status: :unprocessable_entity
@@ -43,6 +43,10 @@ module Api
         end
 
         private
+
+        def customer
+          CustomerRepository.find_by({ id: params.permit(:customer_id) }) || current_user.customer
+        end
 
         def set_user
           return current_user if current_user.id == user_id

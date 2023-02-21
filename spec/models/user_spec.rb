@@ -6,11 +6,11 @@ RSpec.describe User, type: :model do
   let(:user) { build(:user) }
   let(:validation_errors) { user.errors.full_messages }
 
-  context 'for a new user' do
-    it 'has a valid factory' do
-      expect(user).to be_valid
-    end
+  it 'has a valid factory' do
+    expect(user).to be_valid
+  end
 
+  context 'for a new user' do
     it 'validates email format' do
       user.email = 'Invalid@'
 
@@ -70,7 +70,15 @@ RSpec.describe User, type: :model do
     end
 
     it 'has encrypted password' do
-      User.create(email: 'foo@bar.com', username: 'foobar', first_name: 'foo', last_name: 'bar', password: 'password')
+      customer = create(:customer)
+      User.create(
+        email: 'foo@bar.com',
+        username: 'foobar',
+        first_name: 'foo',
+        last_name: 'bar',
+        password: 'password',
+        customer:
+      )
       user = User.find_by(email: 'foo@bar.com')
 
       expect(user.password).to be_nil

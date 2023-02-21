@@ -8,6 +8,8 @@ FactoryBot.define do
     sequence(:last_name)  { |n| "bar#{n}" }
     sequence(:password) { |n| "password#{n}" }
 
+    association :customer
+
     trait :admin do
       admin? { true }
     end
