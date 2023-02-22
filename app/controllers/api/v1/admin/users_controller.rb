@@ -12,14 +12,14 @@ module Api
           user = set_user
           render_response(body: user, serializer: UserSerializer)
         rescue ActiveRecord::RecordNotFound => e
-          user_not_found_response(e)
+          not_found_response(e)
         end
 
         def create
-          user = User.new(user_params.merge(customer: customer))
+          user = User.new(user_params.merge(customer:))
           return render_response(status: :created, body: create_user_body(user)) if UserRepository.save(user)
 
-          render json: user_validation_errors(user), status: :unprocessable_entity
+          render json: validation_errors(user), status: :unprocessable_entity
         end
 
         def update
@@ -29,9 +29,9 @@ module Api
           user.assign_attributes(user_params)
           return render_response(body: user, serializer: UserSerializer) if UserRepository.save(user)
 
-          render json: user_validation_errors(user), status: :unprocessable_entity
+          render json: validation_errors(user), status: :unprocessable_entity
         rescue ActiveRecord::RecordNotFound => e
-          user_not_found_response(e)
+          not_found_response(e)
         end
 
         def destroy
@@ -39,13 +39,15 @@ module Api
 
           render_response(body: user, serializer: UserSerializer) if user.destroy!
         rescue ActiveRecord::RecordNotFound => e
-          user_not_found_response(e)
+          not_found_response(e)
         end
 
         private
 
         def customer
-          CustomerRepository.find_by({ id: params.permit(:customer_id) }) || current_user.customer
+          return CustomerRepository.find(customer_id) if customer_id
+
+          current_user.customer
         end
 
         def set_user
@@ -59,11 +61,11 @@ module Api
         end
 
         def user_id
-          params.permit(:id)[:id]
+          @user_id ||= params.permit(:id)[:id]
         end
 
-        def user_validation_errors(user)
-          { errors: user.errors.full_messages }
+        def customer_id
+          @customer_id ||= params.permit(:customer_id).presence
         end
 
         def create_user_body(user)

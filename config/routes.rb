@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       namespace :admin do
         resources :users, except: [:new, :edit]
+        resources :customers, except: [:new, :edit]
       end
 
       resources :users, except: [:index, :new, :edit]

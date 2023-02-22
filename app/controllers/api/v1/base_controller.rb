@@ -57,11 +57,15 @@ module Api
         render json: response.body, status: response.status
       end
 
-      def user_not_found_response(error)
+      def not_found_response(error)
         return error unless error.is_a?(ActiveRecord::RecordNotFound)
 
         response = Responses::NotFound.new(body: error.message)
         render json: response.body, status: response.status
+      end
+
+      def validation_errors(record)
+        { errors: record.errors.full_messages }
       end
     end
   end
