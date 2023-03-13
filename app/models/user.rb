@@ -4,6 +4,8 @@ class User < ApplicationRecord
   belongs_to :customer
   has_many :role_assignments
   has_many :roles, through: :role_assignments
+  has_many :user_departments
+  has_many :departments, through: :user_departments
 
   has_secure_password
 
